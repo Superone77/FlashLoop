@@ -1,0 +1,120 @@
+#pragma once
+
+#include <torch/extension.h>
+#include <vector>
+
+torch::Tensor gemv_forward_cuda_outer_dim_logical(
+    torch::Tensor inputs,
+    torch::Tensor kernel,
+    torch::Tensor scaling_factors,
+    torch::Tensor zeros,
+    int64_t bit,
+    int64_t group_size,
+    int64_t num_heads,
+    int64_t num_kv_heads,
+    int64_t output_channels);
+
+torch::Tensor qk_selected_cuda(
+    torch::Tensor inputs,
+    torch::Tensor kernel,
+    torch::Tensor scaling_factors,
+    torch::Tensor zeros,
+    torch::Tensor indices,
+    int64_t group_size,
+    int64_t num_heads,
+    int64_t num_kv_heads,
+    int64_t logical_tokens);
+
+torch::Tensor pv_selected_cuda(
+    torch::Tensor inputs,
+    torch::Tensor kernel,
+    torch::Tensor scaling_factors,
+    torch::Tensor zeros,
+    torch::Tensor indices,
+    int64_t group_size,
+    int64_t num_heads,
+    int64_t num_kv_heads,
+    int64_t logical_tokens,
+    int64_t output_channels);
+
+torch::Tensor qk_cross_loop_cuda(
+    torch::Tensor inputs,
+    std::vector<torch::Tensor> kernels,
+    std::vector<torch::Tensor> scaling_factors,
+    std::vector<torch::Tensor> zeros,
+    torch::Tensor indices,
+    torch::Tensor rank3,
+    torch::Tensor rank4,
+    int64_t group_size,
+    int64_t num_heads,
+    int64_t num_kv_heads,
+    int64_t loop,
+    std::vector<int64_t> logical_tokens);
+
+torch::Tensor pv_cross_loop_cuda(
+    torch::Tensor inputs,
+    std::vector<torch::Tensor> kernels,
+    std::vector<torch::Tensor> scaling_factors,
+    std::vector<torch::Tensor> zeros,
+    torch::Tensor indices,
+    torch::Tensor rank3,
+    torch::Tensor rank4,
+    int64_t group_size,
+    int64_t num_heads,
+    int64_t num_kv_heads,
+    int64_t loop,
+    std::vector<int64_t> logical_tokens,
+    int64_t output_channels);
+
+std::vector<torch::Tensor> sparse_attention_delta_cuda(
+    torch::Tensor query,
+    torch::Tensor query_bf16,
+    torch::Tensor current_key,
+    torch::Tensor current_value,
+    std::vector<torch::Tensor> key_kernels,
+    std::vector<torch::Tensor> key_scaling_factors,
+    std::vector<torch::Tensor> key_zeros,
+    std::vector<torch::Tensor> value_kernels,
+    std::vector<torch::Tensor> value_scaling_factors,
+    std::vector<torch::Tensor> value_zeros,
+    torch::Tensor indices,
+    torch::Tensor valid,
+    torch::Tensor rank3,
+    torch::Tensor rank4,
+    torch::Tensor tail_key,
+    torch::Tensor tail_value,
+    torch::Tensor source_output,
+    torch::Tensor global_mass,
+    int64_t current_position,
+    double scaling,
+    int64_t group_size,
+    int64_t num_heads,
+    int64_t num_kv_heads,
+    int64_t loop,
+    std::vector<int64_t> logical_tokens,
+    int64_t output_channels,
+    bool return_current_logits);
+
+std::vector<torch::Tensor> dense_source_attention_cuda(
+    torch::Tensor query,
+    torch::Tensor query_bf16,
+    torch::Tensor current_key,
+    torch::Tensor current_value,
+    std::vector<torch::Tensor> key_kernels,
+    std::vector<torch::Tensor> key_scaling_factors,
+    std::vector<torch::Tensor> key_zeros,
+    std::vector<torch::Tensor> value_kernels,
+    std::vector<torch::Tensor> value_scaling_factors,
+    std::vector<torch::Tensor> value_zeros,
+    torch::Tensor rank3,
+    torch::Tensor rank4,
+    torch::Tensor tail_key,
+    torch::Tensor tail_value,
+    double scaling,
+    int64_t group_size,
+    int64_t num_heads,
+    int64_t num_kv_heads,
+    int64_t loop,
+    std::vector<int64_t> logical_tokens,
+    int64_t output_channels,
+    bool return_logits);
