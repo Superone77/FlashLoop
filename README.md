@@ -2,6 +2,8 @@
 
 **Training-free inference optimization for looped Transformers.**
 
+[Project page](https://superone77.github.io/FlashLoop/)
+
 FlashLoop exploits cross-loop redundancy through token-sparse activation
 updates, loop-aware sparse attention, and cross-loop KV sharing with residual
 quantization. This repository provides two implementations for **Ouro**.
