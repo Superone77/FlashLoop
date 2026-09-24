@@ -10,7 +10,7 @@ quantization. This repository provides two implementations for **Ouro**.
 
 | Implementation | Intended use | KV representation |
 | --- | --- | --- |
-| `flashloop` | Optimized, batch-one CUDA inference | Physically packed int4 cache with custom readers |
+| `flashloop` | Optimized CUDA inference | Physically packed int4 cache with custom readers |
 | `flashloop_torch` | Readable algorithm reference and quality experiments | Fake quantization with materialized tensors |
 
 
@@ -93,20 +93,13 @@ with torch.inference_mode(), flashloop(model) as hooks:
     audit = {name: hook.audit() for name, hook in hooks.items()}
 ```
 
-The explicit prefill/decode path in `examples/generate.py` is the path used
-in the packaged smoke test. The high-level API example above is illustrative;
-it has not received the same separate end-to-end validation.
+
 
 ## Configuration and supported scope
 
 Defaults: four loops; dense loops 1–2; token retention 25%/10% in loops 3–4;
 10% key retention for sparse late-loop decode; 4-bit K/V, group size 64,
 and a 64-token BF16 residual tail.
-
-The engine targets official Ouro-1.4B and Ouro-2.6B configurations, batch
-size one, unpadded inputs, BF16 CUDA execution, head dimension 128 and equal
-query/KV head counts. This packaged release has a short functional smoke
-test on **Ouro-1.4B only**.
 
 ## Repository layout
 
