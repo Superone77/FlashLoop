@@ -8,14 +8,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_python_syntax_and_local_reference_imports():
-    vendor = ROOT / 'flashloop_torch/_reference'
-    names = {p.stem for p in vendor.glob('*.py')}
+def test_python_syntax_and_local_torch_imports():
+    torch_package = ROOT / 'flashloop_torch'
+    names = {p.stem for p in torch_package.glob('*.py')}
     for path in ROOT.rglob('*.py'):
         if any(part in {'.venv', 'build', 'venv'} for part in path.parts):
             continue
         tree = ast.parse(path.read_text())
-        if path.parent == vendor:
+        if path.parent == torch_package:
             for node in ast.walk(tree):
                 if isinstance(node, ast.ImportFrom) and node.module in names:
                     assert node.level == 1, (path, node.module)

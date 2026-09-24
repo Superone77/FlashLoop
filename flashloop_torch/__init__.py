@@ -5,8 +5,8 @@ from contextlib import contextmanager
 @contextmanager
 def flashloop(model, *, attention_fraction=0.10, fraction_loop3=0.25,
               fraction_loop4=0.10):
-    from ._reference.integration import TokenSparsePrefillCachedMassIntervention
-    from ._reference.kv_quantization import CrossLoopKVQuantizationIntervention
+    from .integration import TokenSparsePrefillCachedMassIntervention
+    from .kv_quantization import CrossLoopKVQuantizationIntervention
     joint = TokenSparsePrefillCachedMassIntervention(
         model, attention_fraction=attention_fraction,
         fraction_loop3=fraction_loop3, fraction_loop4=fraction_loop4)
