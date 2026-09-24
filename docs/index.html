@@ -14,8 +14,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./static/css/style.css">
-  <script src="./static/js/main.js" defer></script>
+  <link rel="stylesheet" href="./static/css/style.css?v=quickstart1">
+  <script src="./static/js/main.js?v=quickstart1" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -49,11 +49,46 @@
       </div>
     </section>
 
-    <section class="section section-tinted" id="overview" aria-labelledby="overview-title">
+    <section class="section section-tinted" id="overview" aria-label="FlashLoop demo and overview">
       <div class="shell">
         <figure class="figure demo-card" id="demo">
           <img src="./static/media/flashloop-mmlu-demo-2x.gif" width="1200" height="549" alt="FlashLoop MMLU comparison demo looping at 2× playback speed" fetchpriority="high">
         </figure>
+        <div class="quickstart" aria-labelledby="quickstart-title">
+          <div class="quickstart-heading">
+            <div>
+              <p class="eyebrow">Quick Start</p>
+              <h2 id="quickstart-title">Run FlashLoop with Ouro</h2>
+            </div>
+            <a href="https://pypi.org/project/flashloop/" target="_blank" rel="noopener">View on PyPI ↗</a>
+          </div>
+          <div class="code-panel">
+            <div class="code-panel-header"><span>Install</span><button class="code-copy" type="button" data-copy-target="install-code" aria-label="Copy installation commands">Copy</button></div>
+            <pre><code id="install-code">pip install flashloop
+flashloop-build-kernels</code></pre>
+          </div>
+          <div class="code-panel">
+            <div class="code-panel-header"><span>Python</span><button class="code-copy" type="button" data-copy-target="python-demo-code" aria-label="Copy Python example">Copy</button></div>
+            <pre><code id="python-demo-code">import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM
+from flashloop import FlashLoopEngine
+
+model_path = "/path/to/Ouro-1.4B"
+tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+input_ids = tokenizer.apply_chat_template(
+    [{"role": "user", "content": "What is the capital of France?"}],
+    tokenize=True, add_generation_prompt=True, return_tensors="pt",
+).cuda()
+
+# Optimized engine.
+engine = FlashLoopEngine.from_pretrained(model_path)
+output_ids = engine.generate(input_ids, max_new_tokens=64)
+print(tokenizer.decode(output_ids[0, input_ids.shape[1]:], skip_special_tokens=True))
+del engine
+torch.cuda.empty_cache()</code></pre>
+          </div>
+          <p class="quickstart-note">Requires Linux, an NVIDIA CUDA GPU, and an official Ouro checkpoint. The second installation command compiles the optimized CUDA reader.</p>
+        </div>
         <div class="section-heading centered overview-heading">
           <h2 id="overview-title">Three Complementary Components</h2>
         </div>
@@ -151,7 +186,7 @@
           <p>Across several Looped Transformers models, FlashLoop largely preserves model accuracy while achieving up to 1.64× end-to-end speedup and up to 6× KV-cache memory reduction.</p>
         </div>
         <div class="citation" id="citation">
-          <div class="citation-header"><div><h3>Cite This Work</h3></div><button class="copy-button" type="button" data-copy-bibtex aria-label="Copy BibTeX citation">Copy</button></div>
+          <div class="citation-header"><div><h3>Cite This Work</h3></div><button class="copy-button" type="button" data-copy-target="bibtex-text" aria-label="Copy BibTeX citation">Copy</button></div>
           <div class="bibtex"><pre id="bibtex-text">@misc{yang2026flashloop,
   title={FlashLoop: Fast and Memory-Efficient Looped Transformers via Lazy Updates},
   author={Wanqi Yang and Shiwei Liu},
