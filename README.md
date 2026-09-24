@@ -21,15 +21,16 @@ and Transformers 4.56.2. Building the optimized reader additionally requires
 a CUDA toolkit (`nvcc`) and compatible C++ compiler. Install PyTorch for your
 CUDA environment before installing this project.
 
-From this repository:
+Install the current public GitHub version with pip:
 
 ```bash
-python -m pip install -e .
+python -m pip install "git+https://github.com/Superone77/FlashLoop.git"
 # Required for the optimized engine's default KIVI reader:
 flashloop-build-kernels
 ```
 
-Once the package is released on PyPI, replace `-e .` with `flashloop`.
+For local development, use `python -m pip install -e .` from a checkout.
+Once the package is released on PyPI, use `python -m pip install flashloop`.
 
 The PyTorch reference does not require compiling FlashLoop's CUDA extension.
 `flashloop-build-kernels` compiles the CUDA reader for the installed PyTorch
