@@ -1,4 +1,4 @@
-# FlashLoop
+# FlashLoop: Fast and Memory-Efficient Looped Transformers via Lazy Updates
 
 **Training-free inference optimization for looped Transformers.**
 
