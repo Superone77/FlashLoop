@@ -6,7 +6,7 @@ This directory is a dependency-free static GitHub Pages site, following the acad
 - `static/css/style.css`: responsive layout and visual styling.
 - `static/js/main.js`: BibTeX copy button.
 - `static/images/`: PNG renders of the PDF figures actually referenced by `iclr2027_conference.tex` in the user-provided `FlashLoop__Fast_and_Memory_Efficient_Looped_Transformers_via_Lazy_Updates (1).zip`; `demo-poster.webp` is a frame from the demo video.
-- `static/media/flashloop-mmlu-demo-2x.mp4`: the requested edited demo.
+- `static/media/flashloop-mmlu-demo-2x.gif`: looping GIF made from the edited 2× demo video.
 
 The Paper button is disabled until a public paper link is available. The submission PDF is not part of the site.
 

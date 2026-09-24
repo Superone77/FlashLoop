@@ -13,7 +13,7 @@
 
 * { box-sizing: border-box; }
 body { margin: 0; background: #fff; color: var(--color-primary); font-family: var(--font-sans); line-height: 1.6; -webkit-font-smoothing: antialiased; }
-img, video { display: block; max-width: 100%; }
+img { display: block; max-width: 100%; }
 a { color: var(--color-highlight); text-decoration: none; transition: color .2s ease; }
 a:hover { color: var(--color-accent); }
 button { font: inherit; }
@@ -62,9 +62,9 @@ sup { color: var(--color-highlight); font-size: .65em; font-weight: 600; line-he
 .figure img { width: 100%; height: auto; object-fit: contain; border-radius: 5px; }
 .figure figcaption { margin-top: 10px; color: #666; font-size: .875rem; text-align: center; line-height: 1.6; }
 .figure figcaption strong { color: var(--color-primary); }
-.video-card { max-width: 1000px; margin-bottom: 75px; }
-.video-card video { width: 100%; aspect-ratio: 1920 / 878; border-radius: 6px; background: #121b2a; }
-.video-card figcaption { max-width: 880px; margin: 12px auto 2px; }
+.demo-card { max-width: 1000px; margin-bottom: 75px; }
+.demo-card img { width: 100%; height: auto; border-radius: 6px; background: #121b2a; }
+.demo-card figcaption { max-width: 880px; margin: 12px auto 2px; }
 .overview-heading { margin-bottom: 40px; }
 .contribution-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 24px; }
 .contribution { padding: 30px 32px; transition: box-shadow .2s ease, transform .2s ease; }
@@ -145,7 +145,7 @@ tbody tr:hover { background: #fcfcfd; }
   .hero h1 { font-size: clamp(2rem, 5.7vw, 2.6rem); }
   .section { padding-block: 64px; }
   .contribution-grid, .method-grid { grid-template-columns: 1fr; gap: 15px; }
-  .video-card { margin-bottom: 60px; }
+  .demo-card { margin-bottom: 60px; }
   .overview-figure-heading { margin-top: 60px; }
   .result-gallery { grid-template-columns: 1fr; }
   .figure-gallery-wide { grid-column: auto; }
@@ -164,7 +164,7 @@ tbody tr:hover { background: #fcfcfd; }
   .section-heading h2 { font-size: 1.75rem; }
   .figure { padding: 10px; }
   .figure figcaption { font-size: .8rem; }
-  .video-card { margin-bottom: 50px; }
+  .demo-card { margin-bottom: 50px; }
   .contribution { padding: 25px; }
   .result-badges > div { width: 100%; justify-content: center; }
   .citation { padding: 18px; }
