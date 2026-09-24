@@ -1,24 +1,32 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "flashloop-ouro"
+name = "flashloop"
 version = "0.1.0"
 description = "FlashLoop: inference optimization for Ouro looped Transformers"
 readme = "README.md"
-license = {file = "LICENSE"}
+license = "MIT"
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
 requires-python = ">=3.10"
 dependencies = ["torch>=2.2", "transformers==4.56.2"]
+
+[project.urls]
+Homepage = "https://superone77.github.io/FlashLoop/"
+Repository = "https://github.com/Superone77/FlashLoop"
+
+[project.scripts]
+flashloop-build-kernels = "flashloop.build_kernels:main"
 
 [project.optional-dependencies]
 test = ["pytest>=7"]
 
 [tool.setuptools.packages.find]
-include = ["flashloop_engine*", "flashloop_torch*"]
+include = ["flashloop*", "flashloop_torch*"]
 
 [tool.setuptools.package-data]
-flashloop_engine = ["csrc/*"]
+flashloop = ["csrc/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

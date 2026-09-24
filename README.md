@@ -10,7 +10,7 @@ quantization. This repository provides two implementations for **Ouro**.
 
 | Implementation | Intended use | KV representation |
 | --- | --- | --- |
-| `flashloop_engine` | Optimized, batch-one CUDA inference | Physically packed int4 cache with custom readers |
+| `flashloop` | Optimized, batch-one CUDA inference | Physically packed int4 cache with custom readers |
 | `flashloop_torch` | Readable algorithm reference and quality experiments | Fake quantization with materialized tensors |
 
 
@@ -21,14 +21,20 @@ and Transformers 4.56.2. Building the optimized reader additionally requires
 a CUDA toolkit (`nvcc`) and compatible C++ compiler. Install PyTorch for your
 CUDA environment before installing this project.
 
+From this repository:
+
 ```bash
 python -m pip install -e .
-# Only needed for the optimized engine:
-bash scripts/build_kernels.sh
-export PYTHONPATH="$PWD/build:${PYTHONPATH:-}"
+# Required for the optimized engine's default KIVI reader:
+flashloop-build-kernels
 ```
 
+Once the package is released on PyPI, replace `-e .` with `flashloop`.
+
 The PyTorch reference does not require compiling FlashLoop's CUDA extension.
+`flashloop-build-kernels` compiles the CUDA reader for the installed PyTorch
+and CUDA toolkit, then installs it alongside the Python package. A source
+checkout uses the same build command.
 The tested environment and current validation scope are summarized below.
 
 ## Quick start
@@ -55,7 +61,7 @@ bash scripts/smoke_test.sh /path/to/Ouro-1.4B
 ```python
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
-from flashloop_engine import FlashLoopEngine
+from flashloop import FlashLoopEngine
 from flashloop_torch import flashloop
 
 model_path = "/path/to/Ouro-1.4B"
@@ -101,7 +107,7 @@ test on **Ouro-1.4B only**.
 ## Repository layout
 
 ```text
-flashloop_engine/       Optimized execution, packed cache, CUDA kernels
+flashloop/              Optimized execution, packed cache, CUDA kernels
 flashloop_torch/        Reference API and internal algorithm implementations
 examples/generate.py   Shared real-generation example
 scripts/               Kernel build and two-backend smoke commands

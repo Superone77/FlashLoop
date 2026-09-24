@@ -2,10 +2,10 @@
 
 ## KIVI
 
-The CUDA reader under `flashloop_engine/csrc/` includes an adaptation of
+The CUDA reader under `flashloop/csrc/` includes an adaptation of
 [KIVI](https://github.com/jy-yuan/KIVI), copyright (c) 2024 jiayi yuan,
 licensed under MIT. The full original notice is preserved in
-[`flashloop_engine/csrc/KIVI_NOTICE`](flashloop_engine/csrc/KIVI_NOTICE).
+[`flashloop/csrc/KIVI_NOTICE`](flashloop/csrc/KIVI_NOTICE).
 Do not remove it when redistributing these files.
 
 ## External dependencies and model checkpoints

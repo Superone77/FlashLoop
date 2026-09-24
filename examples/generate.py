@@ -30,7 +30,7 @@ def main():
         raise ValueError('This smoke test requires four-loop Ouro')
     engine = None
     if args.backend == 'engine':
-        from flashloop_engine import FlashLoopEngine
+        from flashloop import FlashLoopEngine
         engine = FlashLoopEngine(model)
     else:
         from flashloop_torch import flashloop
