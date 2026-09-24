@@ -40,7 +40,8 @@ The tested environment and current validation scope are summarized below.
 
 ## Quick start
 
-Obtain a trusted official Ouro checkpoint separately, then run:
+Obtain a trusted official Ouro checkpoint separately. From a repository
+checkout, run:
 
 ```bash
 python examples/generate.py --backend engine --model /path/to/Ouro-1.4B \
@@ -51,7 +52,8 @@ python examples/generate.py --backend torch --model /path/to/Ouro-1.4B \
 ```
 
 
-To run three prompts through both backends and save actual outputs:
+From the same checkout, run three prompts through both backends and save
+actual outputs:
 
 ```bash
 bash scripts/smoke_test.sh /path/to/Ouro-1.4B
