@@ -66,17 +66,15 @@ sup { color: var(--color-highlight); font-size: .65em; font-weight: 600; line-he
 .demo-card img { width: 100%; height: auto; border-radius: 6px; background: #121b2a; }
 .demo-card figcaption { max-width: 880px; margin: 12px auto 2px; }
 .quickstart { max-width: 1000px; margin: 0 auto 75px; padding: 28px; border-radius: 12px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
-.quickstart-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+.quickstart-heading { margin-bottom: 20px; }
 .quickstart-heading .eyebrow { margin-bottom: 3px; }
 .quickstart-heading h2 { margin: 0; font-size: clamp(1.5rem, 2.5vw, 1.9rem); line-height: 1.25; letter-spacing: -.02em; }
-.quickstart-heading a { flex: 0 0 auto; font-size: .88rem; font-weight: 600; }
 .code-panel { overflow: hidden; border-radius: 8px; background: #16213e; color: #eef2f8; }
 .code-panel + .code-panel { margin-top: 14px; }
 .code-panel-header { display: flex; align-items: center; justify-content: space-between; min-height: 40px; padding: 7px 14px; border-bottom: 1px solid rgba(255,255,255,.12); color: #b9c4d8; font-size: .77rem; font-weight: 600; letter-spacing: .03em; }
 .code-copy { padding: 3px 9px; border: 1px solid rgba(255,255,255,.2); border-radius: 4px; background: transparent; color: #eef2f8; cursor: pointer; font-size: .75rem; letter-spacing: 0; }
 .code-copy:hover { background: rgba(255,255,255,.1); }
 .code-panel pre { margin: 0; overflow-x: auto; padding: 16px 18px; font: .82rem/1.65 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; tab-size: 4; }
-.quickstart-note { margin: 15px 0 0; color: #667085; font-size: .82rem; }
 .overview-heading { margin-bottom: 40px; }
 .contribution-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 24px; }
 .contribution { padding: 30px 32px; transition: box-shadow .2s ease, transform .2s ease; }
@@ -177,7 +175,6 @@ tbody tr:hover { background: #fcfcfd; }
   .figure { padding: 10px; }
   .figure figcaption { font-size: .8rem; }
   .quickstart { margin-bottom: 50px; padding: 18px; }
-  .quickstart-heading { align-items: flex-start; flex-direction: column; gap: 8px; }
   .code-panel pre { padding: 13px 14px; font-size: .76rem; }
   .contribution { padding: 25px; }
   .result-badges > div { width: 100%; justify-content: center; }
