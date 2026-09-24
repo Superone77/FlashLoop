@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#ffffff">
-  <meta name="description" content="FlashLoop is a training-free inference framework that uses lazy updates to make looped Transformers faster and more memory efficient.">
+  <meta name="description" content="FlashLoop is a training-free inference framework that reduces cross-loop redundancy through token-sparse updates, sparse attention, and KV-residual quantization.">
   <meta property="og:type" content="website">
   <meta property="og:title" content="FlashLoop: Fast and Memory-Efficient Looped Transformers via Lazy Updates">
-  <meta property="og:description" content="Training-free looped Transformer inference with token-sparse updates, sparse attention, and KV-residual quantization.">
+  <meta property="og:description" content="A training-free inference framework that reduces cross-loop redundancy through token-sparse updates, sparse attention, and KV-residual quantization.">
   <meta property="og:image" content="https://superone77.github.io/FlashLoop/static/images/pareto_frontier_horizontal.png">
   <title>FlashLoop | Fast and Memory-Efficient Looped Transformers</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
@@ -27,7 +27,7 @@
         <a href="#motivation">Motivation</a>
         <a href="#method">Method</a>
         <a href="#results">Experiments</a>
-        <a href="#summary">Summary</a>
+        <a href="#summary">Conclusion</a>
       </div>
       <a class="nav-github" href="https://github.com/Superone77/FlashLoop" aria-label="FlashLoop source code on GitHub">GitHub <span aria-hidden="true">↗</span></a>
     </nav>
@@ -36,7 +36,7 @@
   <main id="main">
     <section class="hero shell" id="top" aria-labelledby="page-title">
       <h1 id="page-title">FlashLoop: Fast and Memory-Efficient Looped Transformers via Lazy Updates</h1>
-      <p class="hero-subtitle">Training-free inference for looped Transformers through <span class="highlight">lazy cross-loop updates</span>.</p>
+      <p class="hero-subtitle">a <span class="highlight">training-free inference framework</span> that reduces cross-loop redundancy through token-sparse updates, sparse attention, and KV-residual quantization</p>
       <div class="authors" aria-label="Authors">
         <span>Wanqi Yang<sup>1,2,3</sup></span>
         <span>Shiwei Liu<sup>1,2,3</sup></span>
@@ -45,7 +45,7 @@
       <div class="hero-actions">
         <button class="button button-primary" type="button" disabled title="Paper link coming soon">Paper</button>
         <a class="button button-outline" href="https://github.com/Superone77/FlashLoop" target="_blank" rel="noopener">Code</a>
-        <a class="button button-outline" href="#summary">BibTeX</a>
+        <a class="button button-outline" href="#citation">BibTeX</a>
       </div>
     </section>
 
@@ -56,23 +56,22 @@
             <source src="./static/media/flashloop-mmlu-demo-2x.mp4" type="video/mp4">
             Your browser does not support embedded video. <a href="./static/media/flashloop-mmlu-demo-2x.mp4">Download the demo</a>.
           </video>
-          <figcaption><strong>FlashLoop demo.</strong> The video is edited to 2× playback. Its original baseline timeline includes artificial 1-second pauses between questions, and the ten MMLU examples were curated. Answers and KV-cache values come from the recorded run; this visualization is not an inference speed benchmark.</figcaption>
         </figure>
         <div class="section-heading centered overview-heading">
-          <h2 id="overview-title">Core Contributions</h2>
+          <h2 id="overview-title">Three Complementary Components</h2>
         </div>
         <div class="contribution-grid">
-          <article class="contribution"><span class="contribution-icon blue" aria-hidden="true">↻</span><h3>Lazy Token Updates</h3><p>Reuse converged states and recompute only the token positions that remain active.</p></article>
-          <article class="contribution"><span class="contribution-icon green" aria-hidden="true">⌁</span><h3>Loop-Aware Attention</h3><p>Focus attention work on important key columns predicted from the preceding loop.</p></article>
-          <article class="contribution"><span class="contribution-icon red" aria-hidden="true">▦</span><h3>Compact KV Cache</h3><p>Store a quantized base and low-bit cross-loop residuals instead of full per-loop KV states.</p></article>
+          <article class="contribution"><span class="contribution-icon blue" aria-hidden="true">↻</span><h3>Cross-Loop Token-Sparse Updates</h3><p>FlashLoop selectively updates only the tokens that remain active across loops.</p></article>
+          <article class="contribution"><span class="contribution-icon green" aria-hidden="true">⌁</span><h3>Loop-Aware Sparse Attention</h3><p>FlashLoop uses the preceding loop to identify a small subset of columns for recomputation.</p></article>
+          <article class="contribution"><span class="contribution-icon red" aria-hidden="true">▦</span><h3>Cross-Loop KV Residual Quantization</h3><p>FlashLoop therefore represents the KV cache as a quantized base state followed by quantized residual updates across loops.</p></article>
         </div>
         <div class="section-heading centered overview-figure-heading">
-          <h2>Inference Resource Trade-off</h2>
-          <p>Parameter sharing reduces stored weights, while FlashLoop also targets the compute and KV-cache cost of repeated passes.</p>
+          <h2>Performance-matched Looped and Non-looped Models</h2>
+          <p>FlashLoop substantially reduces both computation and KV-cache memory for looped Transformers.</p>
         </div>
         <figure class="figure figure-wide">
-          <img src="./static/images/pareto_frontier_horizontal.png" width="2684" height="806" alt="Paper figure comparing parameter and KV-cache memory and 8K prefill FLOPs of Ouro-2.6B, Ouro with FlashLoop, Qwen3-8B, Gemma3-12B, and Llama3.1-8B" fetchpriority="high">
-          <figcaption>At 8K context, the paper compares model-weight plus KV-cache memory and analytical prefill FLOPs with performance-matched non-looped models.</figcaption>
+          <img src="./static/images/pareto_frontier_horizontal.png" width="2684" height="806" alt="Comparison of performance-matched looped and non-looped models at an 8K context length" fetchpriority="high">
+          <figcaption><strong>Comparison of performance-matched looped and non-looped models at an 8K context length.</strong> FlashLoop substantially reduces both computation and KV-cache memory for looped Transformers.</figcaption>
         </figure>
       </div>
     </section>
@@ -80,22 +79,22 @@
     <section class="section" id="motivation" aria-labelledby="motivation-title">
       <div class="shell">
         <div class="section-heading">
-          <p class="eyebrow">The motivation</p>
-          <h2 id="motivation-title">Recurrent passes are full of <em>lazy updates.</em></h2>
-          <p>As recurrence proceeds, the next loop often changes only a small part of the previous one. The paper identifies three linked forms of cross-loop redundancy.</p>
+          <p class="eyebrow">Cross-Loop Redundancy in Looped Transformers</p>
+          <h2 id="motivation-title">Recurrent refinement becomes <em>structurally redundant</em> along three complementary axes.</h2>
+          <p>As recurrence progresses, changes between adjacent loops become increasingly sparse, predictable, and compressible.</p>
         </div>
         <div class="insight-grid">
-          <article class="insight"><span class="insight-num">01 / TOKENS</span><h3>Few states change substantially</h3><p>Hidden-state and KV updates increasingly concentrate on a subset of token positions.</p></article>
-          <article class="insight"><span class="insight-num">02 / ATTENTION</span><h3>Important keys stay sparse</h3><p>A small, predictable set of key columns dominates changes in attention output.</p></article>
-          <article class="insight"><span class="insight-num">03 / MEMORY</span><h3>Residuals compress better</h3><p>Adjacent-loop KV differences have lower low-bit reconstruction error than full KV states.</p></article>
+          <article class="insight"><span class="insight-num">01 / TOKENS</span><h3>Token-update redundancy</h3><p>Updates to most token states become increasingly small, with only a small fraction of token rows accounting for the majority of changes in hidden states and KV representations.</p></article>
+          <article class="insight"><span class="insight-num">02 / ATTENTION</span><h3>Attention-computation redundancy</h3><p>Cross-loop differences in attention outputs are dominated by a sparse subset of columns whose indices can be reliably predicted from the preceding loop.</p></article>
+          <article class="insight"><span class="insight-num">03 / MEMORY</span><h3>KV-storage redundancy</h3><p>KV residuals between adjacent loops are substantially more friendly to quantization than full KV states, exhibiting lower reconstruction error under identical quantization settings.</p></article>
         </div>
         <figure class="figure figure-wide">
-          <img src="./static/images/flashloop_motivation.png" width="2100" height="1029" loading="lazy" alt="Paper motivation figure showing cross-loop sparsity in hidden-state updates and attention columns, plus reduced quantization error for KV residuals">
-          <figcaption><strong>Cross-loop redundancy.</strong> The paper's motivation figure connects token updates, attention columns, and KV residuals.</figcaption>
+          <img src="./static/images/flashloop_motivation.png" width="2100" height="1029" loading="lazy" alt="Recurrent refinement becomes structurally redundant along three complementary axes">
+          <figcaption><strong>Recurrent refinement becomes structurally redundant along three complementary axes.</strong></figcaption>
         </figure>
         <figure class="figure figure-wide motivation-extra-figure">
-          <img src="./static/images/cross_model_recurrent_generalization.png" width="3411" height="840" loading="lazy" alt="Paper figure comparing attention-column concentration, column turnover, and KV residuals across four Ouro variants">
-          <figcaption><strong>Across Ouro variants.</strong> The same cross-loop patterns appear across the evaluated model variants.</figcaption>
+          <img src="./static/images/cross_model_recurrent_generalization.png" width="3411" height="840" loading="lazy" alt="Additional evidence for cross-loop redundancy across different looped models">
+          <figcaption><strong>Additional evidence for cross-loop redundancy across different looped models.</strong></figcaption>
         </figure>
       </div>
     </section>
@@ -104,68 +103,67 @@
       <div class="shell">
         <div class="section-heading centered">
           <p class="eyebrow">The Method</p>
-          <h2 id="method-title">Training-free inference via lazy updates</h2>
+          <h2 id="method-title">FlashLoop</h2>
         </div>
-        <div class="insight-box"><h3>Core Insight</h3><p>Early loops establish a dense state. In later loops, FlashLoop spends work where the recurrent state is still changing and reuses the rest.</p></div>
+        <div class="insight-box"><h3>Three Coupled Compression Strategies</h3><p>FlashLoop includes three coupled compression strategies: token-sparse updates, sparse attention, and KV residual quantization.</p></div>
         <div class="method-grid">
-          <article class="method-card"><span class="method-step">STEP 01</span><h3>Token-Sparse Updates</h3><p>Reuse converged hidden and KV states. Recompute and store new states for active tokens only.</p></article>
-          <article class="method-card"><span class="method-step">STEP 02</span><h3>Sparse Attention</h3><p>Select important keys using the previous loop's attention contributions, while retaining global probability mass to preserve scale.</p></article>
-          <article class="method-card"><span class="method-step">STEP 03</span><h3>KV-Residual Quantization</h3><p>Store a quantized base state and low-bit residual updates instead of repeatedly storing complete KV states.</p></article>
+          <article class="method-card"><span class="method-step">STEP 01</span><h3>Cross-Loop Token-Sparse Updates</h3><p>Active tokens generate new K/V states for the current loop, whereas inactive tokens continue to reuse their KV cache from preceding loop.</p></article>
+          <article class="method-card"><span class="method-step">STEP 02</span><h3>Loop-Aware Sparse Attention</h3><p>FlashLoop uses the preceding loop to identify a small subset of columns for recomputation. Thus, FlashLoop caches their global probability mass, i.e., the total probability assigned to the selected columns under the full attention distribution of the preceding loop.</p></article>
+          <article class="method-card"><span class="method-step">STEP 03</span><h3>Cross-Loop KV Residual Quantization</h3><p>The K/V states from the first loop are quantized as the base, while each subsequent loop stores only the residual relative to the reconstructed state of the preceding loop.</p></article>
         </div>
-        <p class="method-footnote">The optimized implementation gathers selected tokens and keys into compact buffers and fuses cache updates with quantization for GPU execution.</p>
+        <p class="method-footnote">Dynamic token and column selection can introduce irregular memory accesses and fragmented computation, while separate cache-update and quantization steps may add additional data movement and kernel-launch overhead. FlashLoop addresses these issues by gathering selected tokens and keys into compact, compute-friendly buffers to preserve regular GEMM execution, and by fusing cross-loop KV updates and quantization into the attention kernel.</p>
       </div>
     </section>
 
     <section class="section" id="results" aria-labelledby="results-title">
       <div class="shell">
         <div class="section-heading centered">
-          <p class="eyebrow">Empirical validation</p>
-          <h2 id="results-title">Experimental Results</h2>
-          <p>The paper evaluates four Ouro variants and Huginn-3.5B on MATH-500, ARC-Challenge, GSM8K, HellaSwag, and WinoGrande. The table shows the five-benchmark average change alongside the reported efficiency gains.</p>
+          <p class="eyebrow">Experiments</p>
+          <h2 id="results-title">Main Results</h2>
+          <p>We evaluate FlashLoop on five representative Looped Transformers: four models from the Ouro family and Huginn-3.5B. We evaluate FlashLoop on five benchmarks: MATH-500, GSM8K, ARC-Challenge, HellaSwag and WinoGrande, using the EleutherAI LM Harness.</p>
         </div>
-        <div class="result-badges" aria-label="Headline paper results"><div><strong>1.64×</strong><span>up to end-to-end speedup</span></div><div><strong>6×</strong><span>up to KV-cache reduction</span></div></div>
+        <div class="result-badges" aria-label="Main results"><div><span>up to <strong>1.64×</strong> end-to-end speedup</span></div><div><span>up to <strong>6×</strong> KV-cache memory reduction</span></div></div>
         <div class="table-wrap" role="region" aria-label="FlashLoop model results" tabindex="0">
           <table>
-            <thead><tr><th scope="col">Model</th><th scope="col">Average score change</th><th scope="col">End-to-end speedup</th><th scope="col">KV-cache reduction</th></tr></thead>
+            <thead><tr><th scope="col">Model</th><th scope="col">Δ Avg.</th><th scope="col">Speedup ↑</th><th scope="col">KV Memory ↑</th></tr></thead>
             <tbody>
-              <tr><th scope="row">Ouro-1.4B</th><td class="positive">+0.37 pp</td><td>1.59×</td><td>5.85×</td></tr>
-              <tr><th scope="row">Ouro-1.4B Thinking</th><td>−0.88 pp</td><td>1.59×</td><td>5.85×</td></tr>
-              <tr><th scope="row">Ouro-2.6B</th><td>−0.13 pp</td><td>1.64×</td><td>6.06×</td></tr>
-              <tr><th scope="row">Ouro-2.6B Thinking</th><td>−0.56 pp</td><td>1.64×</td><td>6.06×</td></tr>
-              <tr><th scope="row">Huginn-3.5B</th><td class="positive">+0.17 pp</td><td>1.52×</td><td>5.18×</td></tr>
+              <tr><th scope="row">Ouro-1.4B</th><td class="positive">+0.37</td><td>1.59×</td><td>5.85×</td></tr>
+              <tr><th scope="row">Ouro-1.4B-Thinking</th><td>−0.88</td><td>1.59×</td><td>5.85×</td></tr>
+              <tr><th scope="row">Ouro-2.6B</th><td>−0.13</td><td>1.64×</td><td>6.06×</td></tr>
+              <tr><th scope="row">Ouro-2.6B-Thinking</th><td>−0.56</td><td>1.64×</td><td>6.06×</td></tr>
+              <tr><th scope="row">Huginn-3.5B</th><td class="positive">+0.17</td><td>1.52×</td><td>5.18×</td></tr>
             </tbody>
           </table>
         </div>
-        <p class="table-note">Percentage-point changes are relative to each original model. Values reproduce the paper's main-results table; the paper contains full per-benchmark scores and measurement details.</p>
+        <p class="table-note">Δ Avg. denotes the average-score difference from the original model in percentage points. KV Memory means the reduction of peak KV cache memory relative to original models.</p>
         <div class="result-gallery">
-          <figure class="figure"><img src="./static/images/component_efficiency_ablation_8k.png" width="2907" height="889" loading="lazy" alt="Paper efficiency ablation comparing cumulative effects of token-sparse updates, sparse attention, and 4-bit KV residual quantization"><figcaption><strong>Component efficiency.</strong> Cumulative gains from token-sparse updates, sparse attention, and 4-bit KV residual quantization.</figcaption></figure>
-          <figure class="figure"><img src="./static/images/hyperparameter_efficiency_accuracy_8k.png" width="3802" height="1063" loading="lazy" alt="Paper figure showing accuracy and efficiency trade-offs of attention-key ratio, token-update ratio, and KV storage precision"><figcaption><strong>Accuracy and efficiency.</strong> The paper varies attention-key ratio, later-loop token-update ratios, and KV precision.</figcaption></figure>
-          <figure class="figure"><img src="./static/images/context_measured_efficiency_triptych.png" width="3059" height="964" loading="lazy" alt="Paper figure showing how measured memory use and latency scale with context length"><figcaption><strong>Longer contexts.</strong> Measured memory and latency gains grow as context length increases.</figcaption></figure>
-          <figure class="figure"><img src="./static/images/scaling_with_loops.png" width="3792" height="987" loading="lazy" alt="Paper figure showing prefill FLOPs and KV-cache memory scaling with loop count for Ouro and Huginn"><figcaption><strong>Deeper recurrence.</strong> FlashLoop slows the growth of compute and KV-cache memory in later loops.</figcaption></figure>
+          <figure class="figure"><img src="./static/images/component_efficiency_ablation_8k.png" width="2907" height="889" loading="lazy" alt="Efficiency analysis of each component"><figcaption><strong>Efficiency analysis of each component.</strong> We cumulatively enable cross-loop token-sparse updates, loop-aware sparse attention, and 4-bit KV residual quantization, reporting KV-cache memory, prefill latency, and decode latency.</figcaption></figure>
+          <figure class="figure"><img src="./static/images/hyperparameter_efficiency_accuracy_8k.png" width="3802" height="1063" loading="lazy" alt="Accuracy–efficiency trade-offs of FlashLoop hyperparameters on Ouro-1.4B"><figcaption><strong>Accuracy–efficiency trade-offs of FlashLoop hyperparameters on Ouro-1.4B.</strong> We vary the retained attention-key ratio (left), Loop-3/4 token-update ratios (middle), and KV residual quantization precision (right), while keeping the remaining components fixed.</figcaption></figure>
+          <figure class="figure"><img src="./static/images/context_measured_efficiency_triptych.png" width="3059" height="964" loading="lazy" alt="Scaling with context length"><figcaption><strong>Scaling with context length.</strong> FlashLoop delivers increasingly substantial memory savings and speedups as the context length grows.</figcaption></figure>
+          <figure class="figure"><img src="./static/images/scaling_with_loops.png" width="3792" height="987" loading="lazy" alt="Scaling with loops"><figcaption><strong>Scaling with loops.</strong> As the number of loops increases, FlashLoop progressively reduces the accumulated prefill FLOPs and KV-cache memory of both Ouro-1.4B and Huginn-3.5B.</figcaption></figure>
         </div>
       </div>
     </section>
 
     <section class="section section-tinted" id="summary" aria-labelledby="summary-title">
       <div class="shell summary-shell">
-        <div class="section-heading centered"><h2 id="summary-title">Key Takeaways</h2></div>
+        <div class="section-heading centered"><h2 id="summary-title">Conclusion</h2></div>
         <div class="takeaways">
-          <p><strong>Training-free conversion</strong> improves looped inference without changing model weights.</p>
-          <p><strong>Cross-loop redundancy</strong> lets FlashLoop reuse tokens, select attention columns, and store compact KV residuals.</p>
-          <p><strong>Measured efficiency gains</strong> reach up to 1.64× end-to-end speedup and about 6× KV-cache reduction across the evaluated variants.</p>
+          <p>In this paper, we find that much of the additional computation and storage introduced by looping is redundant.</p>
+          <p>FlashLoop includes three coupled compression strategies: token-sparse updates, sparse attention, and KV residual quantization.</p>
+          <p>Across several Looped Transformers models, FlashLoop largely preserves model accuracy while achieving up to 1.64× end-to-end speedup and up to 6× KV-cache memory reduction.</p>
         </div>
         <div class="citation" id="citation">
-          <div class="citation-header"><div><h3>Cite This Work</h3><p>The manuscript is under review. Use this provisional entry until publication details are available.</p></div><button class="copy-button" type="button" data-copy-bibtex aria-label="Copy BibTeX citation">Copy</button></div>
+          <div class="citation-header"><div><h3>Cite This Work</h3></div><button class="copy-button" type="button" data-copy-bibtex aria-label="Copy BibTeX citation">Copy</button></div>
           <div class="bibtex"><pre id="bibtex-text">@misc{yang2026flashloop,
   title={FlashLoop: Fast and Memory-Efficient Looped Transformers via Lazy Updates},
   author={Wanqi Yang and Shiwei Liu},
-  year={2026},
-  note={Manuscript under review}
+  year={2026}
 }</pre></div>
         </div>
       </div>
     </section>
   </main>
-  <footer class="site-footer"><div class="shell"><span>FlashLoop</span><span>Built for clear, efficient looped inference.</span><a href="https://github.com/Superone77/FlashLoop">GitHub ↗</a></div></footer>
+  <footer class="site-footer"><div class="shell"><span>FlashLoop</span><span>Fast and Memory-Efficient Looped Transformers via Lazy Updates</span><a href="https://github.com/Superone77/FlashLoop">GitHub ↗</a></div></footer>
 </body>
 </html>
