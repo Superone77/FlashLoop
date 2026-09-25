@@ -3,6 +3,7 @@
 **Training-free inference optimization for looped Transformers.**
 
 [Project page](https://superone77.github.io/FlashLoop/)
+[Paper](https://arxiv.org/abs/2609.29812)
 
 FlashLoop exploits cross-loop redundancy through token-sparse activation
 updates, loop-aware sparse attention, and cross-loop KV sharing with residual
@@ -118,8 +119,20 @@ artificial-delay demonstrations are included.
 
 ## Citation
 
-Please cite the FlashLoop paper when using this code in research. Public
-paper links and the final BibTeX entry will be added when available.
+Please cite [FlashLoop on arXiv](https://arxiv.org/abs/2609.29812) when using
+this code in research:
+
+```bibtex
+@misc{yang2026flashloop,
+  title={FlashLoop: Fast and Memory-Efficient Looped Transformers via Lazy Updates},
+  author={Wanqi Yang and Shiwei Liu},
+  year={2026},
+  eprint={2609.29812},
+  archivePrefix={arXiv},
+  primaryClass={cs.LG},
+  url={https://arxiv.org/abs/2609.29812}
+}
+```
 
 ## License
 
