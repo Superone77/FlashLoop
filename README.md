@@ -1,5 +1,4 @@
 <div align="center">
-  <img src="docs/favicon.svg" alt="FlashLoop logo" width="64" />
   <h1>FlashLoop</h1>
   <p><strong>Fast and Memory-Efficient Looped Transformers via Lazy Updates</strong></p>
   <p>A training-free inference framework that reduces cross-loop redundancy through token-sparse updates, sparse attention, and KV-residual quantization.</p>
