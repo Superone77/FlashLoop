@@ -1,49 +1,83 @@
-# FlashLoop: Fast and Memory-Efficient Looped Transformers via Lazy Updates
+<div align="center">
+  <img src="docs/favicon.svg" alt="FlashLoop logo" width="64" />
+  <h1>FlashLoop</h1>
+  <p><strong>Fast and Memory-Efficient Looped Transformers via Lazy Updates</strong></p>
+  <p>A training-free inference framework that reduces cross-loop redundancy through token-sparse updates, sparse attention, and KV-residual quantization.</p>
 
-**Training-free inference optimization for looped Transformers.**
+  <p>
+    <a href="https://arxiv.org/abs/2609.29812"><img src="https://img.shields.io/badge/Paper-arXiv%3A2609.29812-B31B1B?logo=arxiv&amp;logoColor=white" alt="Paper on arXiv" /></a>
+    <a href="https://superone77.github.io/FlashLoop/"><img src="https://img.shields.io/badge/Project-Page-5757A6" alt="Project page" /></a>
+    <a href="https://pypi.org/project/flashloop/"><img src="https://img.shields.io/pypi/v/flashloop?label=PyPI&amp;color=3775A9" alt="PyPI package" /></a>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-2E8B57" alt="MIT license" /></a>
+  </p>
+</div>
 
-[Project page](https://superone77.github.io/FlashLoop/)
-[Paper](https://arxiv.org/abs/2609.29812)
+<p align="center">
+  <a href="#overview">Overview</a> ·
+  <a href="#installation">Installation</a> ·
+  <a href="#quick-start">Quick start</a> ·
+  <a href="#implementations">Implementations</a> ·
+  <a href="#citation">Citation</a>
+</p>
 
-FlashLoop exploits cross-loop redundancy through token-sparse activation
-updates, loop-aware sparse attention, and cross-loop KV sharing with residual
-quantization. This repository provides two implementations for **Ouro**.
+<p align="center">
+  <img src="docs/static/media/flashloop-mmlu-demo-2x.gif" alt="FlashLoop MMLU demo" width="820" />
+</p>
 
-| Implementation | Intended use | KV representation |
-| --- | --- | --- |
-| `flashloop` | Optimized CUDA inference | Physically packed int4 cache with custom readers |
-| `flashloop_torch` | Readable algorithm reference and quality experiments | Fake quantization with materialized tensors |
+---
 
+## Overview
+
+Looped Transformers reduce model size by repeatedly applying a shared set of layers, but parameter sharing does not translate into proportional gains in inference efficiency. FlashLoop exploits **cross-loop redundancy** to reduce computation and KV-cache memory without retraining.
+
+| Lazy update | What it does |
+| :--- | :--- |
+| **Token-sparse updates** | Reuse converged token states across loops. |
+| **Loop-aware sparse attention** | Focus late-loop attention on important keys. |
+| **KV-residual quantization** | Compress the differences between adjacent loops' KV caches. |
+
+Across the evaluated Looped Transformer variants, FlashLoop achieves **up to 1.64× end-to-end speedup** and **up to 6× KV-cache memory reduction**. The figure below compares the memory footprint and 8K prefill FLOPs of Ouro-2.6B R4 before and after FlashLoop.
+
+<p align="center">
+  <img src="docs/static/images/pareto_frontier_horizontal.png" alt="Memory footprint and 8K prefill FLOPs comparison" width="900" />
+</p>
+
+<p align="center"><em>Ouro-2.6B R4: 16.9 → 6.9 GiB memory footprint and 214.4 → 121.8 TFLOPs for 8K prefill.</em></p>
 
 ## Installation
 
-Requirements: Linux, NVIDIA CUDA GPU, Python 3.10+, CUDA-compatible PyTorch,
-and Transformers 4.56.2. Building the optimized reader additionally requires
-a CUDA toolkit (`nvcc`) and compatible C++ compiler. Install PyTorch for your
-CUDA environment before installing this project.
-
-Install from PyPI:
+FlashLoop targets **Linux with an NVIDIA CUDA GPU** and **Python 3.10+**. Install a CUDA-compatible PyTorch build for your system first. The optimized engine also needs a CUDA toolkit (`nvcc`) and a compatible C++ compiler to build its default KIVI reader. The package pins `transformers==4.56.2`.
 
 ```bash
 python -m pip install flashloop
-# Required for the optimized engine's default KIVI reader:
 flashloop-build-kernels
 ```
 
-For local development, use `python -m pip install -e .` from a checkout.
-The latest public GitHub version can also be installed with
-`python -m pip install "git+https://github.com/Superone77/FlashLoop.git"`.
-
-The PyTorch reference does not require compiling FlashLoop's CUDA extension.
-`flashloop-build-kernels` compiles the CUDA reader for the installed PyTorch
-and CUDA toolkit, then installs it alongside the Python package. A source
-checkout uses the same build command.
-The tested environment and current validation scope are summarized below.
+For development from a checkout, run `python -m pip install -e .` and then `flashloop-build-kernels`. The PyTorch reference implementation does not require FlashLoop's CUDA extension.
 
 ## Quick start
 
-Obtain a trusted official Ouro checkpoint separately. From a repository
-checkout, run:
+Use a trusted official Ouro checkpoint. The optimized engine exposes a small Python API:
+
+```python
+from transformers import AutoTokenizer
+from flashloop import FlashLoopEngine
+
+model_path = "/path/to/Ouro-1.4B"
+tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+input_ids = tokenizer.apply_chat_template(
+    [{"role": "user", "content": "What is the capital of France?"}],
+    tokenize=True,
+    add_generation_prompt=True,
+    return_tensors="pt",
+).cuda()
+
+engine = FlashLoopEngine.from_pretrained(model_path)
+output_ids = engine.generate(input_ids, max_new_tokens=64)
+print(tokenizer.decode(output_ids[0, input_ids.shape[1]:], skip_special_tokens=True))
+```
+
+From a repository checkout, the shared example can run either backend:
 
 ```bash
 python examples/generate.py --backend engine --model /path/to/Ouro-1.4B \
@@ -53,20 +87,14 @@ python examples/generate.py --backend torch --model /path/to/Ouro-1.4B \
   --prompt "What is the capital of France?" --max-new-tokens 64
 ```
 
+<details>
+<summary>PyTorch reference API</summary>
 
-From the same checkout, run three prompts through both backends and save
-actual outputs:
-
-```bash
-bash scripts/smoke_test.sh /path/to/Ouro-1.4B
-```
-
-## Python API
+The reference backend uses a fresh hook context for each request:
 
 ```python
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM
-from flashloop import FlashLoopEngine
+from transformers import AutoModelForCausalLM, AutoTokenizer
 from flashloop_torch import flashloop
 
 model_path = "/path/to/Ouro-1.4B"
@@ -75,32 +103,29 @@ input_ids = tokenizer.apply_chat_template(
     [{"role": "user", "content": "What is the capital of France?"}],
     tokenize=True, add_generation_prompt=True, return_tensors="pt",
 ).cuda()
-
-# Optimized engine.
-engine = FlashLoopEngine.from_pretrained(model_path)
-output_ids = engine.generate(input_ids, max_new_tokens=64)
-print(tokenizer.decode(output_ids[0, input_ids.shape[1]:], skip_special_tokens=True))
-del engine
-torch.cuda.empty_cache()
-
-# PyTorch reference: use a fresh hook context for each request.
 model = AutoModelForCausalLM.from_pretrained(
-    model_path, trust_remote_code=True, torch_dtype=torch.bfloat16,
+    model_path,
+    trust_remote_code=True,
+    torch_dtype=torch.bfloat16,
     attn_implementation="eager",
 ).cuda().eval()
+
 with torch.inference_mode(), flashloop(model) as hooks:
     output_ids = model.generate(input_ids, max_new_tokens=64,
-                               do_sample=False, use_cache=True)
+                                do_sample=False, use_cache=True)
     audit = {name: hook.audit() for name, hook in hooks.items()}
 ```
 
+</details>
 
+## Implementations
 
-## Configuration and supported scope
+| Package | Intended use | KV representation |
+| :--- | :--- | :--- |
+| [`flashloop`](flashloop/) | Optimized CUDA inference | Physically packed int4 cache with custom readers |
+| [`flashloop_torch`](flashloop_torch/) | Readable algorithm reference and quality experiments | Fake quantization with materialized tensors |
 
-Defaults: four loops; dense loops 1–2; token retention 25%/10% in loops 3–4;
-10% key retention for sparse late-loop decode; 4-bit K/V, group size 64,
-and a 64-token BF16 residual tail.
+The defaults use four loops: dense loops 1–2, 25%/10% token retention in loops 3–4, 10% key retention for sparse late-loop decode, 4-bit K/V with group size 64, and a 64-token BF16 residual tail.
 
 ## Repository layout
 
@@ -110,17 +135,14 @@ flashloop_torch/        Reference API and internal algorithm implementations
 examples/generate.py   Shared real-generation example
 scripts/               Kernel build and two-backend smoke commands
 tests/                 CPU-safe repository checks
+docs/                  Project page and media
 ```
 
-Run CPU-safe checks with `python -m pip install -e '.[test]'` followed by
-`python -m pytest`. These checks do not replace GPU inference tests.
-No model weights, evaluation datasets, cluster credentials, private logs or
-artificial-delay demonstrations are included.
+Run `bash scripts/smoke_test.sh /path/to/Ouro-1.4B` from a checkout to save actual outputs from both backends. For CPU-safe repository checks, install `.[test]` and run `python -m pytest`; GPU inference still needs a separate check. No model weights, evaluation datasets, cluster credentials, private logs, or artificial-delay demonstrations are included.
 
 ## Citation
 
-Please cite [FlashLoop on arXiv](https://arxiv.org/abs/2609.29812) when using
-this code in research:
+If you use FlashLoop in research, please cite the [paper](https://arxiv.org/abs/2609.29812):
 
 ```bibtex
 @misc{yang2026flashloop,
@@ -136,7 +158,4 @@ this code in research:
 
 ## License
 
-Project code is released under the [MIT License](LICENSE). Third-party
-notices, including KIVI attribution, are preserved in
-[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Model checkpoints and
-external dependencies retain their own terms.
+Project code is released under the [MIT License](LICENSE). Third-party notices, including KIVI attribution, are preserved in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Model checkpoints and external dependencies retain their own terms.
