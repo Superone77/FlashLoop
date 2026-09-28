@@ -12,6 +12,7 @@
 </div>
 
 <p align="center">
+  <a href="#news">News</a> ·
   <a href="#overview">Overview</a> ·
   <a href="#installation">Installation</a> ·
   <a href="#quick-start">Quick start</a> ·
@@ -24,6 +25,11 @@
 </p>
 
 ---
+
+## News
+
+- **[2026-09] SGLang integration:** We have implemented FlashLoop in SGLang. See our [upstream PR #41485](https://github.com/sgl-project/sglang/pull/41485).
+- **[2026-09] Paper & code release:** Our [paper](https://arxiv.org/abs/2609.29812) and [code](https://github.com/Superone77/FlashLoop) are now available! Get started with `pip install flashloop`.
 
 ## Overview
 
